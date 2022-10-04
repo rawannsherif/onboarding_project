@@ -9,6 +9,9 @@ packages = [{include = "onboarding_project"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 Django = "^4.1.1"
+djangorestframework = "^3.14.0"
+django-phonenumber-field = "^7.0.0"
+phonenumbers = "^8.12.56"
 
 
 [build-system]
