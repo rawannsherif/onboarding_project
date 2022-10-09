@@ -1,12 +1,15 @@
 from configparser import MAX_INTERPOLATION_DEPTH
 from email.policy import default
+from enum import unique
 from unittest.util import _MAX_LENGTH
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
+from django.contrib.auth.models import AbstractUser
 
 
-class User(models.Model):
-    username = models.CharField(max_length = 100)
+
+class User(AbstractUser):
+    username = models.CharField(max_length = 100, unique=True)
     email = models.EmailField(blank = True, null = True)
     phoneNumber = PhoneNumberField(unique = True)
     password = models.CharField(max_length = 100)

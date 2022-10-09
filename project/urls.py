@@ -22,6 +22,10 @@ from rest_framework.routers import DefaultRouter
 from project_api import views
 
 from rest_framework_swagger.views import get_swagger_view
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -39,6 +43,8 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api/swagger/', schema_view.with_ui('swagger',
          cache_timeout=0), name='schema-swagger-ui'),
-    re_path(r'^$', views.schema_view)
+    re_path(r'^$', views.schema_view),
+    path('api/token/', TokenObtainPairView.as_view(), name= 'token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
 ]
