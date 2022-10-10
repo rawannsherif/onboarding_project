@@ -10,15 +10,16 @@ class UserSerializer(serializers.ModelSerializer):
 class BankAccount(serializers.ModelSerializer):
     class Meta:
         model = models.BankAccount
-        fields =  ["bankId", "user", "accountNumber"]
+        fields =  [ "user", "accountNumber"]
 
 class Installments(serializers.ModelSerializer):
     class Meta:
         model = models.Installments
-        fields =  ["numberOfInstallments", "status"]
+        fields =  ["loan", "status", "dateDue", "amount"]
 
 class Loan(serializers.ModelSerializer):
+    number_of_installments = serializers.IntegerField()
     class Meta:
         model = models.Loan
-        fields =  ["installments", "loanAmount", "loanStatus"]
+        fields =  ["amount", "status", "number_of_installments"]
 
