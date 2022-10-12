@@ -9,11 +9,8 @@ from django.utils.timezone import now
 from datetime import date
 
 
-class Loan(models.Model):
-    amount = models.PositiveIntegerField()
-    status = models.BooleanField(default = True)
+
 class User(AbstractUser):
-    loan = models.ForeignKey(Loan, blank=True, null= True, on_delete = models.CASCADE)
     username = models.CharField(max_length = 100, unique=True)
     email = models.EmailField(blank = True, null = True)
     phoneNumber = PhoneNumberField(unique = True)
@@ -21,7 +18,11 @@ class User(AbstractUser):
 class BankAccount(models.Model):
     user = models.OneToOneField(User, on_delete = models.CASCADE)
     accountNumber =  models.CharField(max_length = 100)
-    balance = models.FloatField(blank = True, null = True)
+    balance = models.FloatField(default=0)
+class Loan(models.Model):
+    user = models.ForeignKey(User, blank=True, null= True, on_delete = models.CASCADE)
+    amount = models.PositiveIntegerField()
+    status = models.BooleanField(default = True)
 class Installments(models.Model):
     loan = models.ForeignKey(Loan, blank=True, null=True, on_delete = models.CASCADE)
     status = models.BooleanField(default = False)

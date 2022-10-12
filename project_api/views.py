@@ -18,24 +18,16 @@ def schema_view(request):
     generator = schemas.SchemaGenerator(title='API')
     return response.Response(generator.get_schema(request=request))
 
-class UserView(GenericViewSet, mixins.UpdateModelMixin):
+class UserView(GenericViewSet, mixins.UpdateModelMixin, mixins.CreateModelMixin):
     # permission_classes = [permissions.IsAuthenticated]
     queryset=models.User.objects.all()
     serializer_class = serializers.UserSerializer
 
     def retrieve(self, request, pk=None):
-        users = models.User.objects.filter(id= pk).first()
-        loan = models.Loan.objects.filter(id=pk).first()
-        print(loan)
+        users = get_object_or_404(models.User, id= pk)
+        serializerLoan = serializers.Loan()
         serializer = serializers.UserSerializer(users)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-    def create(self, request, *args, **kwargs):
-        serialize = serializers.UserSerializer(data= request.data)
-        serialize.is_valid(raise_exception=True)
-
-        return Response(serialize.data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=['POST'])
     def create_account(self, request, *args, **kwargs):
