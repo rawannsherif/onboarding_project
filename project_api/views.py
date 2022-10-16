@@ -25,23 +25,27 @@ class UserView(GenericViewSet, mixins.UpdateModelMixin, mixins.CreateModelMixin)
 
     def retrieve(self, request, pk=None):
         users = get_object_or_404(models.User, id= pk)
-        serializerLoan = serializers.Loan()
+        serializerLoan = serializers.GetLoanSerializer()
         serializer = serializers.UserSerializer(users)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        response_data = {
+            'user': serializer.data,
+            'loan': serializerLoan.data
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['POST'])
     def create_account(self, request, *args, **kwargs):
-        serialize = serializers.BankAccount(data= request.data)
+        serialize = serializers.BankAccountSerializer(data= request.data)
         serialize.is_valid(raise_exception=True)
         serialize.save()
         return Response(serialize.data, status= status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['POST'], url_path=r'pay/(?P<ins_id>\w+(?:-\w+)*)')
     def pay_loan(self, request, *args, **kwargs):
+        print(kwargs['pk'])
         user = get_object_or_404(models.User, id=kwargs['pk'])
         bank_account = get_object_or_404(models.BankAccount, user=user) 
         installment = get_object_or_404(models.Installments, id=kwargs['ins_id'])
-        
         # check 
         if bank_account.balance >= installment.amount and installment.status == False:
             installment.status = True
@@ -49,27 +53,27 @@ class UserView(GenericViewSet, mixins.UpdateModelMixin, mixins.CreateModelMixin)
 
             bank_account.save()
             installment.save()
-        return Response(status= status.HTTP_201_CREATED)
+        return Response(status= status.HTTP_200_OK)
 class BankAccountView(GenericViewSet, mixins.UpdateModelMixin):
     queryset = models.BankAccount.objects.all()
-    serializer_class = serializers.BankAccount
+    serializer_class = serializers.BankAccountSerializer
 
     def retrieve(self, request, pk=None):
         bank = models.BankAccount.objects.filter(id=pk).first()
-        serializer = serializers.BankAccount(bank)
+        serializer = serializers.BankAccountSerializer(bank)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class LoanView(GenericViewSet, mixins.UpdateModelMixin):
     queryset = models.Loan.objects.all()
-    serializer_class = serializers.Loan
+    serializer_class = serializers.CreateLoanSerializer
 
     def retrieve(self, request, pk=None):
         loan = models.Loan.objects.filter(id=pk).first()
-        serializer = serializers.Loan(loan)
+        serializer = serializers.GetLoanSerializer(loan)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
-        serialize = serializers.Loan(data= request.data)
+        serialize = serializers.CreateLoanSerializer(data= request.data)
         serialize.is_valid(raise_exception=True)
         number_of_installments = serialize.validated_data.pop('number_of_installments')
         loan = models.Loan.objects.create(**serialize.validated_data)
@@ -84,11 +88,11 @@ class LoanView(GenericViewSet, mixins.UpdateModelMixin):
 
 class InstallmentsView(GenericViewSet, mixins.UpdateModelMixin):
     queryset = models.Installments.objects.all()
-    serializer_class = serializers.Installments
+    serializer_class = serializers.InstallmentSerializer
 
     def retrieve(self, request, pk=None):
         installments = models.Installments.objects.filter(id=pk).first()
-        serializer = serializers.Installments(installments)
+        serializer = serializers.InstallmentSerializer(installments)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     

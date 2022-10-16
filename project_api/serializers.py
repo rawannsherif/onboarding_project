@@ -8,16 +8,21 @@ class UserSerializer(serializers.ModelSerializer):
         model = models.User
         fields = ["id", "username", "email", "phoneNumber", "password"]
         read_only_fields = ['id']
-class BankAccount(serializers.ModelSerializer):
+class BankAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.BankAccount
         fields =  [ "user", "accountNumber"]
-class Installments(serializers.ModelSerializer):
+class InstallmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Installments
         fields =  ["loan", "status", "dateDue", "amount"]
-    
-class Loan(serializers.ModelSerializer):
+class GetLoanSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Loan
+        fields =  ["amount", "status"]
+        
+class CreateLoanSerializer(serializers.ModelSerializer):
     number_of_installments = serializers.IntegerField()
 
     class Meta:
@@ -25,6 +30,6 @@ class Loan(serializers.ModelSerializer):
         fields =  ["amount", "status", "number_of_installments"]
 
     def validate(self, attrs):
-        if attrs.get('number_of_installments')<=0:
+        if attrs.get('number_of_installments') <= 0:
             raise ValidationError({'detail': 'invalid number of installments'})
         return super().validate(attrs)
